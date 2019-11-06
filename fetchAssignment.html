@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+
+    <section id="getPost">
+        <!--Get Post Section-->
+        <h1 style="text-align: center">GET POSTS</h1>
+        <button id="refresh" style="background: greenyellow; float: right; margin: 2%;">Get posts & Refresh</button>
+        <table width="100%" border="1" id="table">
+            <tr>
+                <td>&nbsp;Id</td>
+                <td>&nbsp;userId</td>
+                <td>&nbsp;title</td>
+                <td>&nbsp;body</td>
+            </tr>
+
+        </table>
+    </section>
+
+    <section id="addData">
+        <!--Add Data Section-->
+        <h1 style="text-align: center">ADD DATA</h1>
+        <label for="">userId</label>
+        <input type="text" id="userId">
+        <label for="">title</label>
+        <input type="text" id="title">
+        <label for="">body</label>
+        <input type="text" id="body">
+        <button id="add" style="background: rgb(255, 0, 157); ">Add</button>
+
+    </section>
+
+    <section id="editData">
+        <!--Edit Data Section-->
+        <h1 style="text-align: center">EDIT DATA</h1>
+        <label for="">userId</label>
+        <input type="text" id="userId2">
+        <label for="">title</label>
+        <input type="text" id="title2">
+        <label for="">body</label>
+        <input type="text" id="body2">
+        <label for="">Id</label>
+        <input type="text" id="id">
+        <button id="edit" style="background: rgb(0, 195, 255); ">Edit</button>
+
+    </section>
+
+
+    <script>
+        //1. A section called Get Posts that gets all the posts from the provided url. 
+        //When fetched the data is filled into a table in the same section.
+        // There's also a refresh button that simply refreshes the data,
+        // no need for data changes validation here.
+
+        let refresh = document.getElementById("refresh")
+        refresh.addEventListener("click", function () {
+            console.log(1);
+            fetch('http://localhost:3000/posts')
+                .then(response => response.json())
+                .then(json => {
+                    //   console.log(json)
+
+                    for (const key in json) { //need two loops here
+
+                        // create new row for every post
+                        let table = document.getElementById("table")
+                        let tr = document.createElement("tr")
+                        table.appendChild(tr)
+                        // console.log(json[key]);
+                        let eachObj = json[key]
+
+                        // console.log(eachObj["title"]);
+
+                        let a = ["id", "userId", "title", "body"]
+                        for (const element of a) {
+
+                            let td = document.createElement("td")
+                            td.innerHTML = eachObj[element]
+                            tr.appendChild(td)
+                        }
+
+                    }
+                }
+                )
+        })
+
+        //  2. A section called Add Data that has 3 inputs for userId,body,
+        //title and an Add button that posts the changes. 
+        //There's also an indicator beneath all of these that says "Adding new post succeeded" in green
+        // when adding the post is successful and says "There was an error" in red when it catches an error.
+
+        let add = document.getElementById("add")
+        let userId = document.getElementById("userId")
+        let title = document.getElementById("title")
+        let body = document.getElementById("body")
+        add.addEventListener("click", function () {
+            console.log(2)
+            console.log(userId.value);
+            console.log(title.value);
+            console.log(body.value);
+
+            fetch('http://localhost:3000/posts',
+                {
+                    method: 'post',
+                    body: JSON.stringify(
+                        {
+                            userId: userId.value,
+                            title: title.value,
+                            body: body.value
+                        }
+                    ),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            ).then(response => response.json())
+                .then(json => {
+                    console.log(json)
+
+                    let addSection = document.getElementById("addData")
+
+                    let success = document.createElement("h3")
+                    success.innerHTML = "Adding new post succeeded"
+                    success.style.color = "green"
+                    addSection.appendChild(success)
+                })
+                .catch(e => {
+
+                    let addSection = document.getElementById("addData")
+
+                    let error = document.createElement("h3")
+                    error.innerHTML = "There was an error"
+                    error.style.color = "red"
+                    addSection.appendChild(error)
+                    return error;
+
+                })
+
+
+        })
+
+        // 3. A section called Edit data that contains 4 inputs userId,body,title,id 
+        //and an Edit post button that changes the data of the post with the id from the id input.
+        // This section also contains an indicator at its bottom that says "Changed data of id successfully"
+        // in green when changing data is successful and "Changing data of id was not successful" in red when there's an error
+
+        let edit = document.getElementById("edit")
+        let userId2 = document.getElementById("userId2")
+        let title2 = document.getElementById("title2")
+        let body2 = document.getElementById("body2")
+        let id = document.getElementById("id")
+        edit.addEventListener("click", function () {
+
+            console.log(3);
+
+            fetch('http://localhost:3000/posts/5',
+                {
+                    method: 'put',
+                    body: JSON.stringify(
+                        {
+                            userId: userId2.value,
+                            title: title2.value,
+                            body: body2.value,
+                            id: id.value
+                        }
+                    ),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            ).then(response => response.json())
+                .then(json => {
+                    console.log(json)
+
+                    let editSection = document.getElementById("editData")
+
+                    let success = document.createElement("h3")
+                    success.innerHTML = "Changed data of id successfully"
+                    success.style.color = "green"
+                    editSection.appendChild(success)
+                    // alert("Adding new post succeeded")
+                })
+                .catch(e => {
+
+                    let editSection = document.getElementById("editData")
+
+                    let error = document.createElement("h3")
+                    error.innerHTML = "There was an error"
+                    error.style.color = "red"
+                    editSection.appendChild(error)
+                    return error;
+
+                })
+
+
+
+        })
+
+    </script>
+</body>
+
+</html>
